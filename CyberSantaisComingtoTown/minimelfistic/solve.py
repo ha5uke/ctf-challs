@@ -3,8 +3,8 @@ from pwn import *
 
 bin_file = './chall'
 context(os = 'linux', arch = 'amd64')
-#HOST = '46.101.85.29'
-#PORT = 31882
+#HOST = ''
+#PORT = 
 
 binf = ELF(bin_file)
 libc = ELF('./libc.so.6')

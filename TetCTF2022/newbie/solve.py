@@ -5,8 +5,8 @@ import ctypes
 
 bin_file = './chall'
 context(os = 'linux', arch = 'amd64')
-HOST = '18.191.117.63'
-PORT = 31337
+# HOST = ''
+# PORT = 
 binf = ELF(bin_file)
 libc = ELF('./libc.so.6')
 

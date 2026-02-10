@@ -1,2 +1,2 @@
 # pwn-challs
-Part of the CTF pwn challenges I solved.
+Part of the CTF challenges I solved (mainly pwn, crypto).

@@ -3,8 +3,8 @@ from pwn import *
 
 bin_file = './chall'
 context(os = 'linux', arch = 'amd64')
-HOST = 'average.quals.seccon.jp'
-PORT = 1234
+# HOST = ''
+# PORT = 
 
 binf = ELF(bin_file)
 libc = ELF('./libc.so.6')
@@ -69,10 +69,10 @@ def attack(io, **kwargs):
 
 
 def main():
-    #io = process(bin_file)
-    io = remote(HOST, PORT)
+    io = process(bin_file)
+    # io = remote(HOST, PORT)
     attack(io)
-    #gdb.attach(io, '')
+    # gdb.attach(io, '')
     io.interactive()
 
 if __name__ == '__main__':

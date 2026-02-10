@@ -3,8 +3,8 @@ from pwn import *
 
 bin_file = './chall'
 context(os = 'linux', arch = 'amd64')
-HOST = 'saturn.picoctf.net'
-PORT = 60613
+# HOST = ''
+# PORT = 
 
 binf = ELF(bin_file)
 

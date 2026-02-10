@@ -3,8 +3,8 @@ from pwn import *
  
 bin_file = './chall'
 context(os = 'linux', arch = 'i386')
-HOST = 'hiyoko.quals.seccon.jp'
-PORT = 9001
+# HOST = ''
+# PORT = 
   
 binf = ELF(bin_file)
  

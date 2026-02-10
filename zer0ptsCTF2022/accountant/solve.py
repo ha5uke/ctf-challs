@@ -4,8 +4,8 @@ from pwn import *
 bin_file = './chall'
 context(os = 'linux', arch = 'amd64')
 
-HOST = 'pwn1.ctf.zer0pts.com'
-PORT = 9001
+# HOST = ''
+# PORT = 
 
 binf = ELF(bin_file)
 libc = ELF('libc-2.31.so')
