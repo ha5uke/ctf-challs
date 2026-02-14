@@ -1,12 +1,25 @@
 from pwn import *
 
-bin_file = './chall'
-context(os = 'linux', arch = 'amd64')
-HOST = ''
-PORT = 
+BIN_FILE  = './chall'
+LIBC_FILE = './libc.so.6'
 
-binf = ELF(bin_file)
-libc = ELF('./libc.so.6')
+HOST = args.HOST or 'localhost'
+PORT = int(args.PORT or 1337)
+
+context(os='linux', arch='amd64')
+# context.terminal = ['tmux', 'splitw', '-h']
+# context.log_level = 'debug'
+
+binf = ELF(BIN_FILE)
+libc = ELF(LIBC_FILE) if LIBC_FILE != '' else None
+
+def start():
+    if args.REMOTE:
+        return remote(HOST, PORT)
+    elif args.GDB:
+        return gdb.debug(BIN_FILE)
+    else:
+        return process(BIN_FILE)
 
 def attack(io, **kwargs):
     io.sendlineafter('*', 'a')
@@ -33,10 +46,8 @@ def attack(io, **kwargs):
 
 
 def main():
-    #io = process(bin_file)
-    io = remote(HOST, PORT)
+    io = start()
     attack(io)
-    #gdb.attach(io, '')
     io.interactive()
 
 if __name__ == '__main__':

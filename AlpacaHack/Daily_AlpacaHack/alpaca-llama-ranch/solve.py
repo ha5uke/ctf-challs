@@ -7,6 +7,7 @@ HOST = args.HOST or 'localhost'
 PORT = int(args.PORT or 1337)
 
 context(os='linux', arch='amd64')
+# context.terminal = ['tmux', 'splitw', '-h']
 # context.log_level = 'debug'
 
 binf = ELF(BIN_FILE)
@@ -14,11 +15,10 @@ binf = ELF(BIN_FILE)
 def start():
     if args.REMOTE:
         return remote(HOST, PORT)
-
-    if args.GDB:
+    elif args.GDB:
         return gdb.debug(BIN_FILE)
-
-    return process(BIN_FILE)
+    else:
+        return process(BIN_FILE)
 
 def attack(io):
     io.sendlineafter('alpaca.', b'4294967295')

